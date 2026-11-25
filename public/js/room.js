@@ -1,5 +1,5 @@
 // The guest's side: join, look around, like, and see matches.
-import { $, el, icon, api, toast, sideLabel, store, coupleTitle } from './common.js';
+import { $, el, icon, api, toast, sideLabel, store, coupleTitle, firstLetter, dayAndMonth, t } from './common.js';
 
 const code = (new URLSearchParams(location.search).get('w') || '').toUpperCase();
 const KEY = 'jodi:guest:' + code;
@@ -34,14 +34,13 @@ function loadPhoto(p) {
 }
 
 function thumb(p) {
-  const initial = [...(p.name || '?').trim()][0] || '?';
-  const t = el('div', { class: `thumb s-${p.side}` }, el('span', { class: 'initial', text: initial.toUpperCase() }));
+  const box = el('div', { class: `thumb s-${p.side}` }, el('span', { class: 'initial', text: firstLetter(p.name) }));
   if (p.photo) {
     loadPhoto(p).then((url) => {
-      if (url) t.replaceChildren(el('img', { src: url, alt: '' }));
+      if (url) box.replaceChildren(el('img', { src: url, alt: '' }));
     });
   }
-  return t;
+  return box;
 }
 
 // Crop to a 4:5 portrait and squeeze to a small JPEG before it leaves the phone.
@@ -87,26 +86,19 @@ function art(name) {
   return s;
 }
 
-const masthead = (sub) =>
-  el(
-    'header',
-    { class: 'masthead' },
-    el('p', { class: 'kicker', text: 'The singles’ corner at' }),
-    el('h1', null, coupleTitle(room.title)),
-    sub && el('p', { class: 'muted', text: sub }),
-  );
+const masthead = () =>
+  el('header', { class: 'masthead' }, el('p', { class: 'kicker', text: t('room.kicker') }), el('h1', null, coupleTitle(room.title)));
 
-const closesOn = () =>
-  new Date(room.closesAt).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
+const smallHead = (title) => el('header', { class: 'stack' }, el('p', { class: 'kicker', text: room.title }), el('h2', { text: title }));
 
 function promises() {
   const item = (ico, head, text) => el('li', null, icon(ico), el('div', null, el('b', { text: head }), el('span', { text })));
   return el(
     'ul',
     { class: 'promise' },
-    item('eye', 'Only other singles see you', 'People who have not joined see nothing. You are shown only to the people you asked to meet.'),
-    item('lock', 'Your contact stays hidden', 'It is shared only when you and someone else like each other. A like that is not returned stays secret.'),
-    item('clock', `Gone on ${closesOn()}`, 'Profiles, photos and likes are all deleted then. You can delete yours sooner.'),
+    item('eye', t('pr.see.h'), t('pr.see.p')),
+    item('lock', t('pr.hide.h'), t('pr.hide.p')),
+    item('clock', t('pr.gone.h', { date: dayAndMonth(room.closesAt) }), t('pr.gone.p')),
   );
 }
 
@@ -115,10 +107,10 @@ function howTo() {
   return el(
     'ol',
     { class: 'steps' },
-    step('Look around', 'Open “Who’s here” to see the other single guests. Tap a picture to read more.'),
-    step('Like the ones you would like to meet', `You have ${room.likeLimit} likes, so choose with care. You can take a like back.`),
-    step('Wait for a jodi', 'If they like you too, you both get each other’s Instagram or WhatsApp under “Jodis”.'),
-    step('Go and say hello', 'You are at the same wedding. The paneer counter is a fine place to start.'),
+    step(t('how.1h'), t('how.1p')),
+    step(t('how.2h'), t('how.2p', { n: room.likeLimit })),
+    step(t('how.3h'), t('how.3p')),
+    step(t('how.4h'), t('how.4p')),
   );
 }
 
@@ -131,7 +123,7 @@ function problem(message, hint, retry) {
       { class: 'paper center stack' },
       el('h2', { text: message }),
       hint && el('p', { class: 'muted', text: hint }),
-      retry && el('button', { class: 'btn', type: 'button', onclick: () => location.reload() }, 'Try again'),
+      retry && el('button', { class: 'btn', type: 'button', onclick: () => location.reload() }, t('try')),
     ),
   );
 }
@@ -145,14 +137,11 @@ function showWelcome() {
     el(
       'div',
       { class: 'stack' },
-      el('p', {
-        class: 'lede center',
-        text: 'Single, and wondering who else here is? This is a small private corner just for the guests of this wedding.',
-      }),
-      room.joined >= 3 && el('p', { class: 'count', text: `${room.joined} single guests have joined so far.` }),
-      el('button', { class: 'btn', type: 'button', onclick: () => showForm(null) }, 'I’m single. Count me in'),
+      el('p', { class: 'lede center', text: t('w.lede') }),
+      room.joined >= 3 && el('p', { class: 'count', text: t('w.count', { n: room.joined }) }),
+      el('button', { class: 'btn', type: 'button', id: 'joinStart', onclick: () => showForm(null) }, t('w.join')),
       el('div', { class: 'paper henna' }, promises()),
-      el('p', { class: 'muted center', text: 'Not single? Just close this page. Nothing was saved.' }),
+      el('p', { class: 'muted center', text: t('w.not') }),
     ),
   );
   scrollTo(0, 0);
@@ -186,7 +175,7 @@ function showForm(me) {
   const preview = el('div', { class: 'thumb s-bride' }, me && me.photo ? null : icon('camera'));
   if (me && me.photo) loadPhoto(me).then((url) => url && preview.replaceChildren(el('img', { src: url, alt: '' })));
   const fileInput = el('input', { type: 'file', accept: 'image/*', hidden: true });
-  const removeBtn = el('button', { class: 'linkish', type: 'button', hidden: !(me && me.photo) }, 'Remove photo');
+  const removeBtn = el('button', { class: 'linkish', type: 'button', hidden: !(me && me.photo) }, t('f.remove'));
   fileInput.addEventListener('change', async () => {
     const f = fileInput.files[0];
     if (!f) return;
@@ -195,7 +184,7 @@ function showForm(me) {
       preview.replaceChildren(el('img', { src: 'data:image/jpeg;base64,' + photoData, alt: '' }));
       removeBtn.hidden = false;
     } catch {
-      toast('That photo could not be opened. Try another one.');
+      toast(t('f.photoBad'));
     }
   });
   removeBtn.addEventListener('click', () => {
@@ -208,49 +197,43 @@ function showForm(me) {
   const contactInput = el('input', { id: 'contact', name: 'contact', type: 'text', maxlength: 40, autocomplete: 'off', autocapitalize: 'none', value: me ? me.contact : '' });
   const contactLabel = el('label', { for: 'contact' });
   const setContactLabel = (kind) => {
-    contactLabel.textContent = kind === 'whatsapp' ? 'Your WhatsApp number' : 'Your Instagram name';
+    contactLabel.textContent = t(kind === 'whatsapp' ? 'f.wa' : 'f.insta');
     contactInput.placeholder = kind === 'whatsapp' ? '+91 98765 43210' : '@yourname';
     contactInput.inputMode = kind === 'whatsapp' ? 'tel' : 'text';
   };
   setContactLabel(me ? me.contactKind : 'instagram');
 
   const error = el('p', { class: 'error', hidden: true });
-  const submit = el('button', { class: 'btn', type: 'submit' }, me ? 'Save changes' : 'Join the corner');
+  const submit = el('button', { class: 'btn', type: 'submit' }, t(me ? 'f.save' : 'f.joinBtn'));
 
   const form = el(
     'form',
     { class: 'paper', novalidate: true },
-    text('name', 'First name', { attrs: { maxlength: 30, autocomplete: 'given-name' }, value: me?.name }),
-    text('age', 'Age', { type: 'number', attrs: { min: 18, max: 99, inputmode: 'numeric' }, value: me?.age }, 'You must be 18 or older.'),
-    pick('gender', 'I am', [['woman', 'A woman'], ['man', 'A man'], ['other', 'Another identity']], me?.gender),
-    pick('seeking', 'I would like to meet', [['men', 'Men'], ['women', 'Women'], ['everyone', 'Everyone']], me?.seeking, 'You are shown only to people who are looking for you too.'),
-    pick('side', 'I am here from', [['bride', 'The bride’s side'], ['groom', 'The groom’s side'], ['both', 'Friend of both']], me?.side),
-    text('wearing', 'What are you wearing today?', { attrs: { maxlength: 60, placeholder: 'Blue kurta, near the DJ' }, value: me?.wearing }, 'Helps people recognise you across the hall.'),
-    text('about', 'One line about you', { area: true, attrs: { maxlength: 160, placeholder: 'Here for the biryani. Will dance if asked twice.' }, value: me?.about }, 'Optional.'),
+    text('name', t('f.name'), { attrs: { maxlength: 30, autocomplete: 'given-name' }, value: me?.name }),
+    text('age', t('f.age'), { type: 'number', attrs: { min: 18, max: 99, inputmode: 'numeric' }, value: me?.age }, t('f.ageHint')),
+    pick('gender', t('f.gender'), [['woman', t('g.woman')], ['man', t('g.man')], ['other', t('g.other')]], me?.gender),
+    pick('seeking', t('f.seeking'), [['men', t('s.men')], ['women', t('s.women')], ['everyone', t('s.everyone')]], me?.seeking, t('f.seekHint')),
+    pick('side', t('f.side'), [['bride', t('sd.bride')], ['groom', t('sd.groom')], ['both', t('sd.both')]], me?.side),
+    text('wearing', t('f.wear'), { attrs: { maxlength: 60, placeholder: t('f.wearPh') }, value: me?.wearing }, t('f.wearHint')),
+    text('about', t('f.about'), { area: true, attrs: { maxlength: 160, placeholder: t('f.aboutPh') }, value: me?.about }, t('f.optional')),
     el(
       'div',
       { class: 'field' },
-      el('label', null, 'A photo', el('span', { class: 'hint', text: 'Optional. Without one, people see your first letter.' })),
+      el('label', null, t('f.photo'), el('span', { class: 'hint', text: t('f.photoHint') })),
       el(
         'div',
         { class: 'photo-pick' },
         preview,
-        el('div', null, el('button', { class: 'btn small ghost', type: 'button', onclick: () => fileInput.click() }, 'Choose a photo'), el('div', null, removeBtn)),
+        el('div', null, el('button', { class: 'btn small ghost', type: 'button', onclick: () => fileInput.click() }, t('f.choose')), el('div', null, removeBtn)),
         fileInput,
       ),
     ),
-    pick('contactKind', 'If it is a jodi, they can reach me on', [['instagram', 'Instagram'], ['whatsapp', 'WhatsApp']], me ? me.contactKind : 'instagram', 'Shown only to people you match with.'),
+    pick('contactKind', t('f.contact'), [['instagram', 'Instagram'], ['whatsapp', 'WhatsApp']], me ? me.contactKind : 'instagram', t('f.contactHint')),
     el('div', { class: 'field' }, contactLabel, contactInput),
-    !me &&
-      el(
-        'label',
-        { class: 'check' },
-        el('input', { type: 'checkbox', name: 'agree' }),
-        el('span', { text: 'I am 18 or older and single. I understand that other single guests here will see my profile, and that people I match with will see my contact.' }),
-      ),
+    !me && el('label', { class: 'check' }, el('input', { type: 'checkbox', name: 'agree' }), el('span', { text: t('f.agree') })),
     error,
     el('div', { class: 'field' }, submit),
-    el('div', { class: 'center' }, el('button', { class: 'linkish', type: 'button', onclick: () => (me ? showMain() : showWelcome()) }, 'Go back')),
+    el('div', { class: 'center' }, el('button', { class: 'linkish', type: 'button', onclick: () => (me ? showMain() : showWelcome()) }, t('f.back'))),
   );
   form.addEventListener('change', (e) => {
     if (e.target.name === 'contactKind') setContactLabel(e.target.value);
@@ -284,7 +267,7 @@ function showForm(me) {
       await refresh();
       tab = me ? 'me' : 'people';
       showMain();
-      toast(me ? 'Saved.' : 'You are in. Have a look around.');
+      toast(t(me ? 't.saved' : 't.in'));
     } catch (err) {
       error.textContent = err.message;
       error.hidden = false;
@@ -293,14 +276,13 @@ function showForm(me) {
     }
   });
 
-  view.replaceChildren(el('header', { class: 'stack' }, el('p', { class: 'kicker', text: room.title }), el('h2', { text: me ? 'Change your profile' : 'Tell the others a little' })), form);
+  view.replaceChildren(smallHead(t(me ? 'f.h.edit' : 'f.h.new')), form);
   scrollTo(0, 0);
 }
 
 /* ---------- main ---------- */
 async function refresh() {
-  const data = await call('/people');
-  state = data;
+  state = await call('/people');
   // Anyone new under "Jodis" since we last looked gets the celebration once.
   let seen = [];
   try {
@@ -334,14 +316,13 @@ function draw() {
   else drawMe();
 }
 
+const who = (p) => [p.name, ' ', el('small', { class: 'muted', text: p.age })];
+
 function drawPeople() {
   const n = state.people.length;
-  const likes = `${state.likesLeft} ${state.likesLeft === 1 ? 'like' : 'likes'} left`;
   view.replaceChildren(
     masthead(),
-    n
-      ? el('p', { class: 'count', text: `${n} single ${n === 1 ? 'guest' : 'guests'} for you to meet · ${likes}` })
-      : null,
+    n ? el('p', { class: 'count', text: t('p.count', { n, l: state.likesLeft }) }) : null,
     n
       ? el(
           'div',
@@ -349,7 +330,7 @@ function drawPeople() {
           state.people.map((p) =>
             el(
               'button',
-              { class: 'print', type: 'button', onclick: () => openPerson(p), 'aria-label': `${p.name}, ${p.age}, ${sideLabel(p.side)}${p.liked ? ', liked' : ''}` },
+              { class: 'print', type: 'button', onclick: () => openPerson(p), 'aria-label': `${p.name}, ${p.age}, ${sideLabel(p.side)}${p.liked ? ', ' + t('p.liked') : ''}` },
               p.liked && el('span', { class: 'liked' }, icon('heart')),
               thumb(p),
               el('div', { class: 'who' }, p.name, ' ', el('small', { text: p.age })),
@@ -362,9 +343,9 @@ function drawPeople() {
           'div',
           { class: 'paper empty stack' },
           art('chai'),
-          el('h2', { text: 'You are early' }),
-          el('p', { class: 'muted', text: 'Nobody you asked to meet has joined yet. More people scan the card as the evening goes on, so look again after the starters.' }),
-          el('button', { class: 'btn ghost', type: 'button', onclick: () => refresh().then(draw).catch((e) => toast(e.message)) }, 'Look again'),
+          el('h2', { text: t('p.early.h') }),
+          el('p', { class: 'muted', text: t('p.early.p') }),
+          el('button', { class: 'btn ghost', type: 'button', onclick: () => refresh().then(draw).catch((e) => toast(e.message)) }, t('p.again')),
         ),
   );
 }
@@ -376,38 +357,30 @@ function reach(p) {
     'div',
     { class: 'reach' },
     el('p', { class: 'contact', text: insta ? '@' + p.contact : p.contact }),
-    el('a', { class: 'btn', href, target: '_blank', rel: 'noopener noreferrer' }, insta ? 'Say hello on Instagram' : 'Say hello on WhatsApp'),
+    el('a', { class: 'btn', href, target: '_blank', rel: 'noopener noreferrer' }, t(insta ? 'm.insta' : 'm.wa')),
   );
 }
 
+const summary = (p) =>
+  el(
+    'div',
+    { class: 'match-row' },
+    thumb(p),
+    el('div', null, el('h3', null, who(p)), el('span', { class: `tag s-${p.side}`, text: sideLabel(p.side) }), p.wearing && el('div', { class: 'muted', text: t('wearing', { x: p.wearing }) })),
+  );
+
 function drawMatches() {
   view.replaceChildren(
-    el('header', { class: 'stack' }, el('p', { class: 'kicker', text: room.title }), el('h2', { text: 'Your jodis' })),
+    smallHead(t('j.h')),
     state.matches.length
-      ? el(
-          'div',
-          { class: 'stack' },
-          state.matches.map((m) =>
-            el(
-              'div',
-              { class: 'paper' },
-              el(
-                'div',
-                { class: 'match-row' },
-                thumb(m),
-                el('div', null, el('h3', null, m.name, ' ', el('small', { class: 'muted', text: m.age })), el('span', { class: `tag s-${m.side}`, text: sideLabel(m.side) }), m.wearing && el('div', { class: 'muted', text: 'Wearing: ' + m.wearing })),
-              ),
-              reach(m),
-            ),
-          ),
-        )
+      ? el('div', { class: 'stack' }, state.matches.map((m) => el('div', { class: 'paper' }, summary(m), reach(m))))
       : el(
           'div',
           { class: 'paper empty stack' },
           art('chai'),
-          el('h2', { text: 'No jodi yet' }),
-          el('p', { class: 'muted', text: 'When someone you liked likes you back, they appear here with their contact. Nobody is told about a like that is not returned.' }),
-          el('button', { class: 'btn ghost', type: 'button', onclick: () => setTab('people') }, 'See who’s here'),
+          el('h2', { text: t('j.none.h') }),
+          el('p', { class: 'muted', text: t('j.none.p') }),
+          el('button', { class: 'btn ghost', type: 'button', onclick: () => setTab('people') }, t('j.see')),
         ),
   );
 }
@@ -415,33 +388,28 @@ function drawMatches() {
 function drawMe() {
   const me = state.me;
   view.replaceChildren(
-    el('header', { class: 'stack' }, el('p', { class: 'kicker', text: room.title }), el('h2', { text: 'This is how you look' })),
+    smallHead(t('me.h')),
     el(
       'div',
       { class: 'paper' },
-      el(
-        'div',
-        { class: 'match-row' },
-        thumb(me),
-        el('div', null, el('h3', null, me.name, ' ', el('small', { class: 'muted', text: me.age })), el('span', { class: `tag s-${me.side}`, text: sideLabel(me.side) }), me.wearing && el('div', { class: 'muted', text: 'Wearing: ' + me.wearing })),
-      ),
+      summary(me),
       me.about && el('p', { text: me.about }),
-      el('p', { class: 'muted', text: `Matches reach you on ${me.contactKind === 'instagram' ? 'Instagram: @' + me.contact : 'WhatsApp: ' + me.contact}` }),
-      el('button', { class: 'btn ghost', type: 'button', onclick: () => showForm(me) }, 'Change my profile'),
+      el('p', { class: 'muted', text: t(me.contactKind === 'instagram' ? 'me.reach.insta' : 'me.reach.wa', { c: me.contact }) }),
+      el('button', { class: 'btn ghost', type: 'button', onclick: () => showForm(me) }, t('me.change')),
     ),
-    el('section', { class: 'stack' }, el('h2', { text: 'How to use this' }), howTo()),
+    el('section', { class: 'stack' }, el('h2', { text: t('howto') }), howTo()),
     el('div', { class: 'paper' }, promises()),
     el(
       'div',
       { class: 'stack center' },
-      el('button', { class: 'btn danger', type: 'button', onclick: leave }, 'Delete my profile now'),
-      el('p', { class: 'muted', text: 'This removes your profile, photo, likes and matches straight away.' }),
+      el('button', { class: 'btn danger', type: 'button', onclick: leave }, t('me.delete')),
+      el('p', { class: 'muted', text: t('me.deleteNote') }),
     ),
   );
 }
 
 async function leave() {
-  if (!confirm('Delete your profile, likes and matches? This cannot be undone.')) return;
+  if (!confirm(t('me.confirm'))) return;
   try {
     await call('/me', { method: 'DELETE' });
   } catch (e) {
@@ -452,11 +420,11 @@ async function leave() {
   store.del(SEEN);
   room = await api('/rooms/' + code).catch(() => room);
   showWelcome();
-  toast('Your profile was deleted.');
+  toast(t('t.deleted'));
 }
 
-function setTab(t) {
-  tab = t;
+function setTab(next) {
+  tab = next;
   draw();
   scrollTo(0, 0);
 }
@@ -467,9 +435,9 @@ tabs.addEventListener('click', (e) => {
 
 /* ---------- a person's sheet ---------- */
 function openPerson(p) {
-  const likeBtn = el('button', { class: 'btn', type: 'button' });
+  const likeBtn = el('button', { class: 'btn', type: 'button', id: 'likeBtn' });
   const paint = () => {
-    likeBtn.replaceChildren(icon('heart'), p.liked ? 'Liked. Tap to take it back' : 'Like ' + p.name);
+    likeBtn.replaceChildren(icon('heart'), p.liked ? t('s.liked') : t('s.like', { name: p.name }));
     likeBtn.classList.toggle('ghost', !!p.liked);
   };
   paint();
@@ -490,7 +458,7 @@ function openPerson(p) {
           return;
         }
         p.liked = true;
-        toast('Liked. They will only find out if they like you too.');
+        toast(t('t.liked'));
       }
       paint();
       draw();
@@ -501,9 +469,9 @@ function openPerson(p) {
   });
 
   const reportBox = el('div', { class: 'stack', hidden: true });
-  const reason = el('textarea', { maxlength: 200, placeholder: 'What is wrong? (optional, the couple can read this)', 'aria-label': 'Reason' });
+  const reason = el('textarea', { maxlength: 200, placeholder: t('s.reasonPh'), 'aria-label': t('s.reasonPh') });
   reportBox.append(
-    el('p', { class: 'muted', text: `You and ${p.name} will no longer see each other. The couple is told, and can remove them.` }),
+    el('p', { class: 'muted', text: t('s.offNote', { name: p.name }) }),
     reason,
     el(
       'button',
@@ -516,28 +484,28 @@ function openPerson(p) {
             sheet.close();
             await refresh();
             draw();
-            toast(`${p.name} is hidden.`);
+            toast(t('t.hidden', { name: p.name }));
           } catch (e) {
             toast(e.message);
           }
         },
       },
-      'Hide and report',
+      t('s.hide'),
     ),
   );
 
   sheet.replaceChildren(
-    el('button', { class: 'close-x', type: 'button', 'aria-label': 'Close', onclick: () => sheet.close() }, icon('x')),
+    el('button', { class: 'close-x', type: 'button', 'aria-label': t('close'), onclick: () => sheet.close() }, icon('x')),
     el(
       'div',
       { class: 'sheet' },
       thumb(p),
       el('h2', { class: 'who' }, p.name, ' ', el('small', { text: p.age })),
       el('span', { class: `tag s-${p.side}`, text: sideLabel(p.side) }),
-      p.wearing && el('p', null, el('b', { text: 'Wearing today: ' }), p.wearing),
+      p.wearing && el('p', null, el('b', { text: t('s.wearing') }), p.wearing),
       p.about && el('p', { class: 'about', text: p.about }),
       el('div', { class: 'row' }, likeBtn),
-      el('p', { class: 'center' }, el('button', { class: 'linkish', type: 'button', onclick: () => (reportBox.hidden = !reportBox.hidden) }, 'Something is off about this person')),
+      el('p', { class: 'center' }, el('button', { class: 'linkish', type: 'button', onclick: () => (reportBox.hidden = !reportBox.hidden) }, t('s.off'))),
       reportBox,
     ),
   );
@@ -551,7 +519,7 @@ sheet.addEventListener('click', (e) => {
 function celebrate(p) {
   const petals = Array.from({ length: 22 }, (_, i) => {
     const s = el('span', { class: 'petal' });
-    s.style.left = (i * 37) % 100 + '%';
+    s.style.left = ((i * 37) % 100) + '%';
     s.style.animationDelay = ((i * 0.13) % 1.6).toFixed(2) + 's';
     return s;
   });
@@ -560,13 +528,13 @@ function celebrate(p) {
       'div',
       { class: 'match' },
       petals,
-      el('p', { class: 'kicker', text: 'They like you too' }),
-      el('h2', { text: 'It’s a jodi!' }),
+      el('p', { class: 'kicker', text: t('x.kicker') }),
+      el('h2', { text: t('x.h') }),
       el('div', { class: 'pair' }, state.me ? thumb(state.me) : null, thumb(p)),
-      el('p', { text: `You and ${p.name} liked each other. Go and say hello.` }),
-      p.wearing && el('p', { class: 'muted', text: `Look for: ${p.wearing}` }),
+      el('p', { text: t('x.p', { name: p.name }) }),
+      p.wearing && el('p', { class: 'muted', text: t('x.look', { x: p.wearing }) }),
       reach(p),
-      el('p', null, el('button', { class: 'linkish', type: 'button', onclick: () => matchDlg.close() }, 'Keep looking around')),
+      el('p', null, el('button', { class: 'linkish', type: 'button', id: 'keepLooking', onclick: () => matchDlg.close() }, t('x.keep'))),
     ),
   );
   matchDlg.showModal();
@@ -577,9 +545,7 @@ matchDlg.addEventListener('click', (e) => {
 
 /* ---------- start ---------- */
 async function start() {
-  if (!/^[A-Z0-9]{8}$/.test(code)) {
-    return problem('This link is missing its wedding code', 'Scan the card at the venue again, or ask the couple for the link.');
-  }
+  if (!/^[A-Z0-9]{8}$/.test(code)) return problem(t('e.nocode.h'), t('e.nocode.p'));
   try {
     room = await api('/rooms/' + code);
   } catch (e) {
@@ -610,7 +576,7 @@ async function tick() {
       token = null;
       store.del(KEY);
       showWelcome();
-      toast('Your profile is no longer in this corner.');
+      toast(t('t.gone'));
     } else if (e.status === 404 || e.status === 410) {
       problem(e.message);
     }

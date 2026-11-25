@@ -1,5 +1,6 @@
-import { $, el, api, store, niceDate } from './common.js';
+import { $, el, api, store, niceDate, t } from './common.js';
 
+document.title = t('home.title');
 const form = $('#createForm');
 const error = $('#createError');
 const dateInput = $('#date');

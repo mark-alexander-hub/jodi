@@ -9,7 +9,8 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "build:pages": "node scripts/build-pages.mjs",
-    "test": "node test/selftest.mjs"
+    "test": "node test/selftest.mjs",
+    "check:lang": "node test/langcheck.mjs"
   },
   "devDependencies": {
     "wrangler": "^4"

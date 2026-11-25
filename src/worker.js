@@ -32,14 +32,49 @@ const SCHEMA = [
   `CREATE INDEX IF NOT EXISTS reports_room ON reports(room)`,
 ];
 
+// Every refusal has a short code. The pages translate the code; this English text is the fallback.
+const MESSAGES = {
+  too_big: "That is too big to send. Try a smaller photo.",
+  bad_request: "Could not read that request.",
+  name: "Please add your first name.",
+  age: "You need to be 18 or older to join.",
+  gender: "Please choose who you are.",
+  seeking: "Please choose who you would like to meet.",
+  side: "Please choose whose side you are on.",
+  contact_kind: "Please choose how a match can reach you.",
+  insta: "That Instagram name does not look right.",
+  phone: "That phone number does not look right.",
+  photo: "That photo could not be used. Please try another one.",
+  agree: "Please confirm you are 18 or older and happy to join.",
+  room_404: "We could not find that wedding. Check the link or scan the card again.",
+  room_closed: "This wedding corner has closed and everything in it was deleted.",
+  join_first: "Please join first.",
+  profile_gone: "Your profile is no longer here. You can join again.",
+  host_bad: "That host link is not valid for this wedding.",
+  couple_names: "Please add the couple’s names.",
+  date: "Please pick the wedding date.",
+  date_past: "That date has already passed.",
+  date_far: "Please pick a date within the next year.",
+  flood: "A lot of rooms are being made right now. Please try again in a little while.",
+  busy: "Could not create the room. Please try again.",
+  full: "This wedding corner is full.",
+  person_gone: "That person is no longer here.",
+  no_photo: "No photo.",
+  not_found: "Not found.",
+  like_limit: "You have used all {n} likes. Take one back to like someone else.",
+  server: "Something went wrong on our side. Please try again.",
+};
+
 class HttpError extends Error {
-  constructor(status, message) {
-    super(message);
+  constructor(status, code, vars) {
+    super((MESSAGES[code] || code).replace(/\{(\w+)\}/g, (_, k) => (vars && vars[k] != null ? vars[k] : '')));
     this.status = status;
+    this.code = code;
+    this.vars = vars;
   }
 }
-const fail = (message, status = 400) => {
-  throw new HttpError(status, message);
+const fail = (code, status = 400, vars) => {
+  throw new HttpError(status, code, vars);
 };
 
 const json = (data, status = 200) =>
@@ -74,12 +109,12 @@ function bearer(req) {
 
 async function readBody(req) {
   const text = await req.text();
-  if (text.length > MAX_BODY) fail('That is too big to send. Try a smaller photo.', 413);
+  if (text.length > MAX_BODY) fail('too_big', 413);
   try {
     const body = JSON.parse(text || '{}');
     if (body && typeof body === 'object' && !Array.isArray(body)) return body;
   } catch {}
-  fail('Could not read that request.');
+  fail('bad_request');
 }
 
 const clean = (v, max) =>
@@ -92,33 +127,33 @@ const clean = (v, max) =>
 function validateProfile(body, { partial = false } = {}) {
   const p = {};
   p.name = clean(body.name, 30);
-  if (p.name.length < 1) fail('Please add your first name.');
+  if (p.name.length < 1) fail('name');
   p.age = Number(body.age);
-  if (!Number.isInteger(p.age) || p.age < 18 || p.age > 99) fail('You need to be 18 or older to join.');
-  p.gender = ['woman', 'man', 'other'].includes(body.gender) ? body.gender : fail('Please choose who you are.');
+  if (!Number.isInteger(p.age) || p.age < 18 || p.age > 99) fail('age');
+  p.gender = ['woman', 'man', 'other'].includes(body.gender) ? body.gender : fail('gender');
   p.seeking = ['women', 'men', 'everyone'].includes(body.seeking)
     ? body.seeking
-    : fail('Please choose who you would like to meet.');
-  p.side = ['bride', 'groom', 'both'].includes(body.side) ? body.side : fail('Please choose whose side you are on.');
+    : fail('seeking');
+  p.side = ['bride', 'groom', 'both'].includes(body.side) ? body.side : fail('side');
   p.wearing = clean(body.wearing, 60);
   p.about = clean(body.about, 160);
   p.contactKind = ['instagram', 'whatsapp'].includes(body.contactKind)
     ? body.contactKind
-    : fail('Please choose how a match can reach you.');
+    : fail('contact_kind');
   if (p.contactKind === 'instagram') {
     p.contact = clean(body.contact, 40).replace(/^@+/, '');
-    if (!/^[A-Za-z0-9._]{1,30}$/.test(p.contact)) fail('That Instagram name does not look right.');
+    if (!/^[A-Za-z0-9._]{1,30}$/.test(p.contact)) fail('insta');
   } else {
     const raw = clean(body.contact, 24);
     p.contact = (raw.startsWith('+') ? '+' : '') + raw.replace(/\D/g, '');
-    if (!/^\+?\d{8,15}$/.test(p.contact)) fail('That phone number does not look right.');
+    if (!/^\+?\d{8,15}$/.test(p.contact)) fail('phone');
   }
   if (body.photo === undefined || body.photo === '') p.photo = undefined; // leave as it is
   else if (body.photo === null) p.photo = null; // remove
   else if (typeof body.photo === 'string' && body.photo.length <= MAX_PHOTO && /^\/9j\/[A-Za-z0-9+/]+=*$/.test(body.photo))
     p.photo = body.photo;
-  else fail('That photo could not be used. Please try another one.');
-  if (!partial && body.agree !== true) fail('Please confirm you are 18 or older and happy to join.');
+  else fail('photo');
+  if (!partial && body.agree !== true) fail('agree');
   return p;
 }
 
@@ -161,17 +196,17 @@ async function removeGuest(db, id) {
 
 async function loadRoom(db, code) {
   const room = await db.prepare('SELECT * FROM rooms WHERE code = ?').bind(code).first();
-  if (!room) fail('We could not find that wedding. Check the link or scan the card again.', 404);
+  if (!room) fail('room_404', 404);
   if (room.expires_at < Date.now()) {
     await purgeRoom(db, code);
-    fail('This wedding corner has closed and everything in it was deleted.', 410);
+    fail('room_closed', 410);
   }
   return room;
 }
 
 async function loadGuest(req, db, room) {
   const token = bearer(req);
-  if (!token) fail('Please join first.', 401);
+  if (!token) fail('join_first', 401);
   const me = await db
     .prepare(
       `SELECT id, room, name, age, gender, seeking, side, wearing, about, contact_kind, contact,
@@ -180,13 +215,13 @@ async function loadGuest(req, db, room) {
     )
     .bind(await sha256(token), room.code)
     .first();
-  if (!me) fail('Your profile is no longer here. You can join again.', 401);
+  if (!me) fail('profile_gone', 401);
   return me;
 }
 
 async function requireHost(req, room) {
   const key = bearer(req);
-  if (!key || (await sha256(key)) !== room.host_hash) fail('That host link is not valid for this wedding.', 403);
+  if (!key || (await sha256(key)) !== room.host_hash) fail('host_bad', 403);
 }
 
 const meView = (g) => ({
@@ -200,17 +235,17 @@ const meView = (g) => ({
 async function createRoom(req, db) {
   const body = await readBody(req);
   const title = clean(body.title, 60);
-  if (title.length < 2) fail('Please add the couple’s names.');
+  if (title.length < 2) fail('couple_names');
   const date = String(body.date || '');
   const when = /^\d{4}-\d{2}-\d{2}$/.test(date) ? Date.parse(date + 'T00:00:00Z') : NaN;
-  if (Number.isNaN(when)) fail('Please pick the wedding date.');
+  if (Number.isNaN(when)) fail('date');
   const now = Date.now();
-  if (when < now - 2 * DAY) fail('That date has already passed.');
-  if (when > now + 400 * DAY) fail('Please pick a date within the next year.');
+  if (when < now - 2 * DAY) fail('date_past');
+  if (when > now + 400 * DAY) fail('date_far');
 
   await purgeExpired(db);
   const recent = await db.prepare('SELECT COUNT(*) AS n FROM rooms WHERE created_at > ?').bind(now - 3_600_000).first();
-  if (recent.n >= ROOMS_PER_HOUR) fail('A lot of rooms are being made right now. Please try again in a little while.', 429);
+  if (recent.n >= ROOMS_PER_HOUR) fail('flood', 429);
   const hostKey = randomToken();
   const hostHash = await sha256(hostKey);
   for (let attempt = 0; attempt < 5; attempt++) {
@@ -223,7 +258,7 @@ async function createRoom(req, db) {
       .run();
     if (res.meta.changes === 1) return json({ code, hostKey }, 201);
   }
-  fail('Could not create the room. Please try again.', 503);
+  fail('busy', 503);
 }
 
 async function roomInfo(db, room) {
@@ -242,7 +277,7 @@ async function roomInfo(db, room) {
 async function join(req, db, room) {
   const p = validateProfile(await readBody(req));
   const row = await db.prepare('SELECT COUNT(*) AS n FROM guests WHERE room = ?').bind(room.code).first();
-  if (row.n >= ROOM_GUEST_LIMIT) fail('This wedding corner is full.', 409);
+  if (row.n >= ROOM_GUEST_LIMIT) fail('full', 409);
   const id = randomToken().slice(0, 16);
   const token = randomToken();
   const now = Date.now();
@@ -320,7 +355,7 @@ async function loadTarget(db, room, me, id) {
     .bind(String(id || ''), room.code)
     .first();
   if (!g || g.id === me.id || !visible(me, g) || (await isHidden(db, me.id, g.id)))
-    fail('That person is no longer here.', 404);
+    fail('person_gone', 404);
   return g;
 }
 
@@ -334,7 +369,7 @@ async function like(req, db, room, me) {
   let used = count.results[0].n;
   if (!already.results.length) {
     if (used >= LIKE_LIMIT)
-      fail(`You have used all ${LIKE_LIMIT} likes. Take one back to like someone else.`, 409);
+      fail('like_limit', 409, { n: LIKE_LIMIT });
     await db
       .prepare('INSERT OR IGNORE INTO likes (room, from_id, to_id, created_at) VALUES (?, ?, ?, ?)')
       .bind(room.code, me.id, target.id, Date.now())
@@ -357,7 +392,7 @@ async function unlike(db, me, id) {
 async function report(req, db, room, me) {
   const body = await readBody(req);
   const target = await db.prepare('SELECT id FROM guests WHERE id = ? AND room = ?').bind(String(body.about || ''), room.code).first();
-  if (!target || target.id === me.id) fail('That person is no longer here.', 404);
+  if (!target || target.id === me.id) fail('person_gone', 404);
   await db.batch([
     db
       .prepare('INSERT INTO reports (room, from_id, about_id, reason, created_at) VALUES (?, ?, ?, ?, ?)')
@@ -376,11 +411,11 @@ async function photo(req, db, room, id) {
     const me = await loadGuest(req, db, room);
     if (me.id !== id) {
       const g = await db.prepare('SELECT id, gender, seeking FROM guests WHERE id = ? AND room = ?').bind(id, room.code).first();
-      if (!g || !visible(me, g) || (await isHidden(db, me.id, id))) fail('No photo.', 404);
+      if (!g || !visible(me, g) || (await isHidden(db, me.id, id))) fail('no_photo', 404);
     }
   }
   const row = await db.prepare('SELECT photo FROM guests WHERE id = ? AND room = ?').bind(id, room.code).first();
-  if (!row || !row.photo) fail('No photo.', 404);
+  if (!row || !row.photo) fail('no_photo', 404);
   const bytes = Uint8Array.from(atob(row.photo), (c) => c.charCodeAt(0));
   return new Response(bytes, {
     headers: { 'content-type': 'image/jpeg', 'cache-control': 'private, max-age=600', 'x-content-type-options': 'nosniff' },
@@ -429,11 +464,11 @@ async function route(req, env, url) {
   const db = env.DB;
   const m = req.method;
   const parts = url.pathname.split('/').filter(Boolean); // api, rooms, CODE, ...
-  if (parts[1] !== 'rooms') fail('Not found.', 404);
-  if (parts.length === 2) return m === 'POST' ? createRoom(req, db) : fail('Not found.', 404);
+  if (parts[1] !== 'rooms') fail('not_found', 404);
+  if (parts.length === 2) return m === 'POST' ? createRoom(req, db) : fail('not_found', 404);
 
   const code = parts[2].toUpperCase();
-  if (!/^[A-Z0-9]{8}$/.test(code)) fail('We could not find that wedding. Check the link or scan the card again.', 404);
+  if (!/^[A-Z0-9]{8}$/.test(code)) fail('room_404', 404);
   const room = await loadRoom(db, code);
   const [a = '', b = '', c = ''] = parts.slice(3);
 
@@ -453,7 +488,7 @@ async function route(req, env, url) {
       if (g) await removeGuest(db, g.id);
       return json({ ok: true });
     }
-    fail('Not found.', 404);
+    fail('not_found', 404);
   }
 
   const me = await loadGuest(req, db, room);
@@ -467,7 +502,7 @@ async function route(req, env, url) {
   if (a === 'like' && m === 'POST') return like(req, db, room, me);
   if (a === 'like' && b && m === 'DELETE') return unlike(db, me, b);
   if (a === 'report' && m === 'POST') return report(req, db, room, me);
-  fail('Not found.', 404);
+  fail('not_found', 404);
 }
 
 export default {
@@ -478,9 +513,9 @@ export default {
       await ensureSchema(env.DB);
       return await route(req, env, url);
     } catch (e) {
-      if (e instanceof HttpError) return json({ error: e.message }, e.status);
+      if (e instanceof HttpError) return json({ error: e.message, code: e.code, vars: e.vars }, e.status);
       console.error(e);
-      return json({ error: 'Something went wrong on our side. Please try again.' }, 500);
+      return json({ error: MESSAGES.server, code: 'server' }, 500);
     }
   },
 

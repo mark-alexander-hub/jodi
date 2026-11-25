@@ -1,4 +1,6 @@
 // Small helpers shared by every page. No framework, no build step.
+import { t, tn, lang, locale } from './i18n.js';
+export { t, tn, lang, locale };
 
 export const $ = (sel, root = document) => root.querySelector(sel);
 
@@ -43,14 +45,18 @@ export async function api(path, { method = 'GET', body, token } = {}) {
       body: body ? JSON.stringify(body) : undefined,
     });
   } catch {
-    const e = new Error('No connection. Check your internet and try again.');
+    const e = new Error(t('err.offline'));
     e.status = 0;
     throw e;
   }
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    const e = new Error(data.error || 'Something went wrong. Please try again.');
+    // The server sends a short code; show it in the guest's language when we have the words for it.
+    const key = 'err.' + data.code;
+    const said = data.code ? t(key, data.vars) : '';
+    const e = new Error(said && said !== key ? said : data.error || t('err.generic'));
     e.status = res.status;
+    e.code = data.code;
     throw e;
   }
   return data;
@@ -58,25 +64,35 @@ export async function api(path, { method = 'GET', body, token } = {}) {
 
 let toastTimer;
 export function toast(message) {
-  let t = $('#toast');
-  if (!t) {
-    t = el('div', { id: 'toast', role: 'status', 'aria-live': 'polite' });
-    document.body.append(t);
+  let box = $('#toast');
+  if (!box) {
+    box = el('div', { id: 'toast', role: 'status', 'aria-live': 'polite' });
+    document.body.append(box);
   }
-  t.textContent = message;
-  t.classList.add('show');
+  box.textContent = message;
+  box.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+  toastTimer = setTimeout(() => box.classList.remove('show'), 3200);
 }
 
-export const sideLabel = (side) =>
-  side === 'bride' ? 'Bride’s side' : side === 'groom' ? 'Groom’s side' : 'Friend of both';
+export const sideLabel = (side) => t('side.' + (side === 'bride' || side === 'groom' ? side : 'both'));
 
 export function niceDate(iso) {
   const d = new Date(iso + 'T00:00:00');
   return Number.isNaN(d.getTime())
     ? iso
-    : d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    : d.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+export const dayAndMonth = (ms) => new Date(ms).toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' });
+
+// The first letter of a name, as a reader sees it (a whole syllable in Indian scripts, not half of one).
+export function firstLetter(name) {
+  const s = String(name || '').trim();
+  if (!s) return '?';
+  try {
+    for (const { segment } of new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(s)) return segment.toUpperCase();
+  } catch {}
+  return [...s][0].toUpperCase();
 }
 
 // Local storage that does not crash in private tabs.

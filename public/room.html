@@ -31,12 +31,13 @@
 </svg>
 
 <div class="deco"></div>
-<main class="wrap" id="view"><p class="center muted">One moment…</p></main>
+<div id="langs"></div>
+<main class="wrap" id="view"><p class="center muted" data-i18n="loading">One moment…</p></main>
 
 <nav class="tabs" id="tabs" hidden aria-label="Sections">
-  <button type="button" data-tab="people"><svg class="ico"><use href="#i-people"/></svg>Who’s here</button>
-  <button type="button" data-tab="matches"><svg class="ico"><use href="#i-heart"/></svg>Jodis<span class="badge" id="badge" hidden></span></button>
-  <button type="button" data-tab="me"><svg class="ico"><use href="#i-user"/></svg>Me</button>
+  <button type="button" data-tab="people"><svg class="ico"><use href="#i-people"/></svg><span data-i18n="tab.people">Who’s here</span></button>
+  <button type="button" data-tab="matches"><svg class="ico"><use href="#i-heart"/></svg><span data-i18n="tab.jodis">Jodis</span><span class="badge" id="badge" hidden></span></button>
+  <button type="button" data-tab="me"><svg class="ico"><use href="#i-user"/></svg><span data-i18n="tab.me">Me</span></button>
 </nav>
 
 <dialog id="sheet" aria-label="Person"></dialog>

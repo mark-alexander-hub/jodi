@@ -2,7 +2,7 @@
 
 **The singles' corner for one wedding.** Guests scan a card at the venue, see the other single guests at the same wedding, and get each other's Instagram or WhatsApp only when two people like each other.
 
-Free. No ads. No app to install. Everything is deleted three days after the wedding.
+Free. No ads. No app to install. Everything is deleted three days after the wedding. In English, हिन्दी, ಕನ್ನಡ and தமிழ்.
 
 **Use it now: https://weddingjodi.pages.dev**
 
@@ -27,6 +27,12 @@ On the host page you can see who joined and remove anyone who should not be ther
 5. Go and say hello. You are at the same wedding.
 
 You can change or delete your profile at any time under **Me**.
+
+### Languages
+
+Every page has language buttons at the top: English, Hindi, Kannada and Tamil. The choice is remembered on that phone. If the couple sets up their room in Kannada, the QR card opens in Kannada for their guests too, and each guest can still switch.
+
+The Hindi, Kannada and Tamil text has not yet been checked by native speakers. If a line reads oddly, please open an issue or fix it in `public/js/lang/`.
 
 ## What it promises, and how
 
@@ -85,10 +91,19 @@ test/selftest.mjs  end-to-end checks of the API
 
 There is no framework and no build step. There are no accounts: a guest's phone keeps a random key for that one wedding, and the server stores only its hash.
 
+### Add a language
+
+1. Copy `public/js/lang/en.js` to a new file named with the language code, for example `te.js`, and translate the values. Leave the keys and anything in `{curly brackets}` as they are.
+2. Add the language to `LANGS` and `LOCALES` at the top of `public/js/i18n.js`.
+3. If the script needs its own typeface, add `@font-face` lines with a `unicode-range` in `public/app.css`, the way Kannada and Tamil are done.
+4. Run `npm run check:lang`. It lists any missing lines or mismatched placeholders.
+
+Server error messages are sent as short codes (`err.name`, `err.age`, ...) so they can be translated in the same file.
+
 ## Credits
 
 - QR codes: [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) by Kazuhiko Arase, MIT.
-- Typefaces: Hind by Indian Type Foundry and Baloo 2 by Ek Type, both under the SIL Open Font License. Licence texts are in `licenses/`.
+- Typefaces: Hind, Hind Mysuru and Hind Madurai by Indian Type Foundry, and Baloo 2, Baloo Tamma 2 and Baloo Thambi 2 by Ek Type, all under the SIL Open Font License. Licence texts are in `licenses/`.
 
 ## Licence
 

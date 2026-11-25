@@ -1,6 +1,6 @@
 // The couple's side: the QR card, a headcount, and a way to remove people.
 /* global qrcode */
-import { $, el, api, toast, sideLabel, store, niceDate, coupleTitle } from './common.js';
+import { $, el, api, toast, sideLabel, store, niceDate, dayAndMonth, coupleTitle, t, tn, lang } from './common.js';
 
 const code = (new URLSearchParams(location.search).get('w') || '').toUpperCase();
 const KEY = 'jodi:host:' + code;
@@ -12,7 +12,8 @@ try {
   saved = JSON.parse(store.get(KEY) || '{}') || {};
 } catch {}
 const hostKey = new URLSearchParams(location.hash.slice(1)).get('k') || saved.key || '';
-const guestLink = `${location.origin}/room?w=${code}`;
+// Guests open the room in the language the couple is using, unless they have picked their own.
+const guestLink = `${location.origin}/room?w=${code}${lang === 'en' ? '' : '&lang=' + lang}`;
 const call = (path, opts = {}) => api(`/rooms/${code}${path}`, { ...opts, token: hostKey });
 
 function qrSvg(text) {
@@ -26,7 +27,7 @@ function qrSvg(text) {
 }
 
 function problem(message, hint) {
-  view.replaceChildren(el('div', { class: 'paper center stack' }, el('h2', { text: message }), hint && el('p', { class: 'muted', text: hint }), el('a', { class: 'btn', href: '/' }, 'Go to the start')));
+  view.replaceChildren(el('div', { class: 'paper center stack' }, el('h2', { text: message }), hint && el('p', { class: 'muted', text: hint }), el('a', { class: 'btn', href: '/' }, t('h.start'))));
 }
 
 async function copy(text, done) {
@@ -34,64 +35,65 @@ async function copy(text, done) {
     await navigator.clipboard.writeText(text);
     toast(done);
   } catch {
-    toast('Could not copy. Press and hold the link to copy it.');
+    toast(t('t.copyFail'));
   }
 }
 
+const step = (n, vars) => el('li', null, el('b', { text: t(`h.how.${n}h`) }), el('span', { text: t(`h.how.${n}p`, vars) }));
+
 function draw(data) {
   store.set(KEY, JSON.stringify({ key: hostKey, title: data.title, date: data.date }));
-  document.title = `${data.title} · your room · Jodi`;
-  const closes = new Date(data.closesAt).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
+  document.title = `${data.title} · ${t('h.title')} · Jodi`;
   const flagged = data.guests.filter((g) => g.reports.length).length;
 
   $('#tableCard').replaceChildren(
     el('p', { text: data.title }),
-    el('h1', { text: 'Single? Scan me.' }),
+    el('h1', { text: t('c.h') }),
     qrSvg(guestLink),
-    el('p', { text: 'Find out who else at this wedding is single.' }),
-    el('p', { text: 'Your contact is shared only if you both like each other.' }),
-    el('p', { class: 'tiny', text: 'Free. No app to install. Everything is deleted three days after the wedding.' }),
+    el('p', { text: t('c.p1') }),
+    el('p', { text: t('c.p2') }),
+    el('p', { class: 'tiny', text: t('c.tiny') }),
   );
 
   view.replaceChildren(
-    el('header', { class: 'masthead' }, el('p', { class: 'kicker', text: 'Your room for' }), el('h1', null, coupleTitle(data.title)), el('p', { class: 'muted', text: niceDate(data.date) })),
+    el('header', { class: 'masthead' }, el('p', { class: 'kicker', text: t('h.kicker') }), el('h1', null, coupleTitle(data.title)), el('p', { class: 'muted', text: niceDate(data.date) })),
 
     el(
       'div',
       { class: 'warn' },
-      el('b', { text: 'Keep this page. ' }),
-      'Its link is your only key to the room: there is no password. Bookmark it or send it to yourself now.',
-      el('div', null, el('button', { class: 'linkish', type: 'button', onclick: () => copy(`${location.origin}/host?w=${code}#k=${hostKey}`, 'Your host link is copied. Keep it private.') }, 'Copy my host link')),
+      el('b', { text: t('h.keep.b') }),
+      t('h.keep.p'),
+      el('div', null, el('button', { class: 'linkish', type: 'button', onclick: () => copy(`${location.origin}/host?w=${code}#k=${hostKey}`, t('t.hostCopied')) }, t('h.copyHost'))),
     ),
 
     el(
       'section',
       { class: 'paper stack center' },
-      el('h2', { text: 'The card for your guests' }),
+      el('h2', { text: t('h.card.h') }),
       qrSvg(guestLink),
-      el('p', { class: 'muted', text: 'Print it and leave it where people queue: the entrance, the food counters, the photo booth.' }),
-      el('button', { class: 'btn', type: 'button', onclick: () => print() }, 'Print the table card'),
+      el('p', { class: 'muted', text: t('h.card.p') }),
+      el('button', { class: 'btn', type: 'button', onclick: () => print() }, t('h.print')),
       el(
         'div',
         { class: 'linkbox' },
-        el('input', { type: 'text', readonly: true, value: guestLink, 'aria-label': 'Link for guests', onfocus: (e) => e.target.select() }),
-        el('button', { class: 'btn small ghost', type: 'button', onclick: () => copy(guestLink, 'Guest link copied. Share it in the wedding WhatsApp group.') }, 'Copy'),
+        el('input', { type: 'text', readonly: true, value: guestLink, 'aria-label': t('h.guestLink'), onfocus: (e) => e.target.select() }),
+        el('button', { class: 'btn small ghost', type: 'button', onclick: () => copy(guestLink, t('t.guestCopied')) }, t('h.copy')),
       ),
     ),
 
     el(
       'section',
       { class: 'stats' },
-      el('div', { class: 'paper stat' }, el('b', { text: data.guests.length }), data.guests.length === 1 ? 'single guest joined' : 'single guests joined'),
-      el('div', { class: 'paper stat' }, el('b', { text: data.matches }), data.matches === 1 ? 'jodi so far' : 'jodis so far'),
+      el('div', { class: 'paper stat' }, el('b', { text: data.guests.length }), tn('h.stat.guests', data.guests.length)),
+      el('div', { class: 'paper stat' }, el('b', { text: data.matches }), tn('h.stat.jodis', data.matches)),
     ),
 
     el(
       'section',
       { class: 'paper' },
-      el('h2', { text: 'Who has joined' }),
-      el('p', { class: 'muted', text: 'You can see who joined so that you can remove anyone who should not be here. You cannot see who liked whom, or who matched: that stays between them.' }),
-      flagged ? el('p', { class: 'guest flag', text: `${flagged} ${flagged === 1 ? 'person has' : 'people have'} been reported by other guests.` }) : null,
+      el('h2', { text: t('h.who.h') }),
+      el('p', { class: 'muted', text: t('h.who.p') }),
+      flagged ? el('p', { class: 'flag', text: t('h.flagged', { n: flagged }) }) : null,
       data.guests.length
         ? data.guests.map((g) =>
             el(
@@ -103,7 +105,7 @@ function draw(data) {
                 el('b', { text: `${g.name}, ${g.age}` }),
                 ' ',
                 el('span', { class: `tag s-${g.side}`, text: sideLabel(g.side) }),
-                g.reports.length ? el('div', { class: 'flag', text: `Reported ${g.reports.length}×` + (g.reports.filter(Boolean).length ? ': ' + g.reports.filter(Boolean).join(' · ') : '') }) : null,
+                g.reports.length ? el('div', { class: 'flag', text: t('h.reported', { n: g.reports.length }) + (g.reports.filter(Boolean).length ? ': ' + g.reports.filter(Boolean).join(' · ') : '') }) : null,
               ),
               el(
                 'button',
@@ -111,36 +113,24 @@ function draw(data) {
                   class: 'btn small danger',
                   type: 'button',
                   onclick: async () => {
-                    if (!confirm(`Remove ${g.name} from the room? Their profile, likes and matches are deleted.`)) return;
+                    if (!confirm(t('h.removeConfirm', { name: g.name }))) return;
                     try {
                       await call('/host/guest/' + g.id, { method: 'DELETE' });
-                      toast(`${g.name} was removed.`);
+                      toast(t('t.removed', { name: g.name }));
                       load();
                     } catch (e) {
                       toast(e.message);
                     }
                   },
                 },
-                'Remove',
+                t('h.remove'),
               ),
             ),
           )
-        : el('p', { text: 'Nobody yet. People join once the card is out at the venue.' }),
+        : el('p', { text: t('h.nobody') }),
     ),
 
-    el(
-      'section',
-      { class: 'stack' },
-      el('h2', { text: 'How to use this' }),
-      el(
-        'ol',
-        { class: 'steps' },
-        el('li', null, el('b', { text: 'Save this page' }), el('span', { text: 'Bookmark it, or copy your host link and send it to yourself.' })),
-        el('li', null, el('b', { text: 'Print the card' }), el('span', { text: 'Two or three copies are plenty. You can also share the guest link in your wedding WhatsApp group the day before.' })),
-        el('li', null, el('b', { text: 'Ask the emcee or DJ to mention it once' }), el('span', { text: 'Something like: “Single? There is a card by the entrance for you.” Most people join right after.' })),
-        el('li', null, el('b', { text: 'That is all' }), el('span', { text: `The room closes by itself on ${closes} and everything in it is deleted.` })),
-      ),
-    ),
+    el('section', { class: 'stack' }, el('h2', { text: t('howto') }), el('ol', { class: 'steps' }, step(1), step(2), step(3), step(4, { date: dayAndMonth(data.closesAt) }))),
 
     el(
       'section',
@@ -151,26 +141,24 @@ function draw(data) {
           class: 'btn danger',
           type: 'button',
           onclick: async () => {
-            if (!confirm('Close the room now and delete every profile, photo and match? This cannot be undone.')) return;
+            if (!confirm(t('h.closeConfirm'))) return;
             try {
               await call('/host', { method: 'DELETE' });
               store.del(KEY);
-              problem('The room is closed', 'Everything in it was deleted.');
+              problem(t('h.closed.h'), t('h.closed.p'));
             } catch (e) {
               toast(e.message);
             }
           },
         },
-        'Close the room and delete everything now',
+        t('h.close'),
       ),
     ),
   );
 }
 
 async function load() {
-  if (!/^[A-Z0-9]{8}$/.test(code) || !hostKey) {
-    return problem('This is not a full host link', 'Open the link you saved when you made the room.');
-  }
+  if (!/^[A-Z0-9]{8}$/.test(code) || !hostKey) return problem(t('h.bad.h'), t('h.bad.p'));
   try {
     draw(await call('/host'));
   } catch (e) {
