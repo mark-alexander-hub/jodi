@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en" data-look="card">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jodi: the singles' corner</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#8d1c31">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<svg class="sprite" aria-hidden="true">
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></symbol>
+  <symbol id="i-people" viewBox="0 0 24 24"><circle cx="8.5" cy="9" r="3.2"/><path d="M2.5 19.5c.4-3.300 2.800-5 6-5s5.600 1.700 6 5z"/><circle cx="17" cy="8" r="2.500"/><path d="M16 13.600c3 .1 5 1.500 5.500 4.400"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.800"/><path d="M4.500 20c.6-4 3.500-6 7.500-6s6.900 2 7.500 6z"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3.200l1.500-2.200h6.600L16.800 8H20v11H4z"/><circle cx="12" cy="13.300" r="3.400"/></symbol>
+</svg>
+
+<div class="deco"></div>
+<main class="wrap" id="view"><p class="center muted">One moment…</p></main>
+
+<nav class="tabs" id="tabs" hidden aria-label="Sections">
+  <button type="button" data-tab="people"><svg class="ico"><use href="#i-people"/></svg>Who’s here</button>
+  <button type="button" data-tab="matches"><svg class="ico"><use href="#i-heart"/></svg>Jodis<span class="badge" id="badge" hidden></span></button>
+  <button type="button" data-tab="me"><svg class="ico"><use href="#i-user"/></svg>Me</button>
+</nav>
+
+<dialog id="sheet" aria-label="Person"></dialog>
+<dialog id="matchDlg" aria-label="It is a match"></dialog>
+
+<script type="module" src="/js/room.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "jodi",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A free, private singles' corner for one wedding. Guests scan a QR, and contact details are shared only when two people like each other.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node test/selftest.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4"
+  }
+}

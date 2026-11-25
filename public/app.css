@@ -1,0 +1,309 @@
+/* Jodi. One stylesheet, three looks picked with <html data-look="card | mehendi | shamiana">. */
+
+@font-face { font-family: 'Hind'; src: url('/fonts/hind-latin-400-normal.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Hind'; src: url('/fonts/hind-latin-600-normal.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Yeseva One'; src: url('/fonts/yeseva-one-latin-400-normal.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Baloo 2'; src: url('/fonts/baloo-2-latin-700-normal.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Rozha One'; src: url('/fonts/rozha-one-latin-400-normal.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+
+:root {
+  color-scheme: light;
+  /* A marigold garland, drawn once and repeated along the top of every page. */
+  --garland: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='40' viewBox='0 0 72 40'%3E%3Cpath d='M0 4 Q36 36 72 4' fill='none' stroke='%235b7a2a' stroke-width='1.6'/%3E%3Cg%3E%3Ccircle cx='8' cy='11.5' r='5.6' fill='%23f39a1e'/%3E%3Ccircle cx='19' cy='18' r='5.9' fill='%23f7c531'/%3E%3Ccircle cx='30.5' cy='21.5' r='6.1' fill='%23f39a1e'/%3E%3Ccircle cx='41.5' cy='21.5' r='6.1' fill='%23f7c531'/%3E%3Ccircle cx='53' cy='18' r='5.9' fill='%23f39a1e'/%3E%3Ccircle cx='64' cy='11.5' r='5.6' fill='%23f7c531'/%3E%3C/g%3E%3Cg fill='%23c9690c' opacity='.55'%3E%3Ccircle cx='8' cy='11.5' r='2'/%3E%3Ccircle cx='30.5' cy='21.5' r='2.2'/%3E%3Ccircle cx='53' cy='18' r='2'/%3E%3C/g%3E%3Cg fill='%23e09a12' opacity='.6'%3E%3Ccircle cx='19' cy='18' r='2'/%3E%3Ccircle cx='41.5' cy='21.5' r='2.2'/%3E%3Ccircle cx='64' cy='11.5' r='2'/%3E%3C/g%3E%3Cpath d='M0 2 q-5 11 0 20 q5 -9 0 -20z M72 2 q-5 11 0 20 q5 -9 0 -20z' fill='%233f7a34'/%3E%3C/svg%3E");
+  --body: 'Hind', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --bride: #f6d9a8;
+  --groom: #cfe3c4;
+  --both: #f3d0d6;
+}
+
+/* Look 1: the wedding card. Cream paper, maroon ink, gold rule. */
+html[data-look='card'] {
+  --bg: #f6ead3;
+  --paper: #fffaf0;
+  --ink: #3d1220;
+  --soft: #7d5a62;
+  --primary: #8d1c31;
+  --on-primary: #fff6e6;
+  --accent: #c8871a;
+  --line: #d6b160;
+  --display: 'Yeseva One', Georgia, serif;
+  --display-weight: 400;
+  --display-space: 0;
+  --radius: 6px;
+  --lift: 0 1px 0 #e9d6ac, 0 10px 22px -14px rgb(61 18 32 / 0.45);
+  --press: 0 2px 0 #5d0f1e;
+}
+
+/* Look 2: mehendi night. Leaf green, henna dots, round friendly letters. */
+html[data-look='mehendi'] {
+  --bg: #eef0d9;
+  --paper: #fcfbee;
+  --ink: #2b2a13;
+  --soft: #66683f;
+  --primary: #2f6b3a;
+  --on-primary: #fbfaea;
+  --accent: #d5741a;
+  --line: #b5bd84;
+  --display: 'Baloo 2', 'Trebuchet MS', sans-serif;
+  --display-weight: 700;
+  --display-space: -0.01em;
+  --radius: 18px;
+  --lift: 0 8px 18px -12px rgb(43 42 19 / 0.5);
+  --press: 0 3px 0 #1e4a27;
+}
+
+/* Look 3: the shamiana. Red and white tent stripes, poster letters, sticker shadows. */
+html[data-look='shamiana'] {
+  --bg: #fff5e6;
+  --paper: #ffffff;
+  --ink: #1f1a2e;
+  --soft: #625c76;
+  --primary: #d3223d;
+  --on-primary: #ffffff;
+  --accent: #f2b01e;
+  --line: #1f1a2e;
+  --display: 'Rozha One', Georgia, serif;
+  --display-weight: 400;
+  --display-space: 0.005em;
+  --radius: 4px;
+  --lift: 4px 4px 0 var(--ink);
+  --press: 3px 3px 0 var(--ink);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 17px/1.5 var(--body);
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+html[data-look='mehendi'] body {
+  background-image: radial-gradient(circle, rgb(140 82 30 / 0.16) 1.4px, transparent 1.8px), radial-gradient(circle, rgb(140 82 30 / 0.1) 1px, transparent 1.4px);
+  background-size: 26px 26px, 26px 26px;
+  background-position: 0 0, 13px 13px;
+}
+[hidden] { display: none !important; }
+.ico { width: 1.25em; height: 1.25em; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vertical-align: -0.22em; }
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+a { color: var(--primary); text-underline-offset: 3px; }
+
+/* ---------- top of the page ---------- */
+.deco { height: 40px; background: var(--garland) repeat-x center top / 72px 40px; }
+html[data-look='shamiana'] .deco {
+  height: 46px;
+  background:
+    radial-gradient(circle at 14px 0, transparent 13.5px, var(--bg) 14px) repeat-x 0 32px / 28px 14px,
+    repeating-linear-gradient(90deg, var(--primary) 0 28px, #fff 28px 56px);
+  border-bottom: 0;
+}
+.wrap { max-width: 480px; margin: 0 auto; padding: 8px 20px 40px; }
+.wrap.wide { max-width: 680px; }
+.brand { display: inline-flex; align-items: baseline; gap: 8px; font: var(--display-weight) 22px/1 var(--display); color: var(--primary); text-decoration: none; letter-spacing: var(--display-space); }
+.brand small { font: 400 13px/1 var(--body); color: var(--soft); }
+
+h1, h2, h3 { font-family: var(--display); font-weight: var(--display-weight); letter-spacing: var(--display-space); line-height: 1.12; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(30px, 8.6vw, 44px); }
+h2 { font-size: 24px; }
+h3 { font-size: 19px; }
+p { margin: 0.6em 0; }
+.lede { font-size: 18px; color: var(--soft); }
+.kicker { font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+html[data-look='shamiana'] .kicker { color: var(--primary); }
+.muted { color: var(--soft); font-size: 15px; }
+.center { text-align: center; }
+.stack > * + * { margin-top: 16px; }
+.rule { border: 0; height: 12px; margin: 22px auto; width: 120px; background: radial-gradient(circle, var(--accent) 3px, transparent 3.5px) center / 12px 12px no-repeat, linear-gradient(var(--line), var(--line)) center / 100% 1.5px no-repeat; }
+
+/* The masthead of a wedding's room */
+.masthead { text-align: center; padding: 14px 0 6px; }
+.masthead h1 { color: var(--primary); }
+html[data-look='card'] .masthead { border: 1.5px solid var(--line); outline: 1.5px solid var(--line); outline-offset: 4px; background: var(--paper); margin: 14px 4px 10px; padding: 22px 14px 16px; }
+html[data-look='shamiana'] .masthead h1 { color: var(--ink); }
+html[data-look='shamiana'] .masthead h1 span { background: linear-gradient(transparent 62%, var(--accent) 62% 92%, transparent 92%); }
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 52px; padding: 12px 22px; width: 100%;
+  font: 600 18px/1.2 var(--body); color: var(--on-primary); background: var(--primary);
+  border: 0; border-radius: calc(var(--radius) + 6px); box-shadow: var(--press);
+  cursor: pointer; text-decoration: none; transition: transform 0.08s ease, box-shadow 0.08s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+html[data-look='shamiana'] .btn { border: 2px solid var(--ink); }
+.btn:active { transform: translate(1px, 2px); box-shadow: none; }
+.btn[disabled] { opacity: 0.55; cursor: default; }
+.btn.ghost { background: transparent; color: var(--primary); box-shadow: none; border: 1.5px solid currentColor; }
+html[data-look='shamiana'] .btn.ghost { color: var(--ink); border-width: 2px; }
+.btn.small { min-height: 40px; padding: 8px 14px; font-size: 15px; width: auto; }
+.btn.danger { background: transparent; color: #a3261c; border: 1.5px solid currentColor; box-shadow: none; }
+.linkish { background: none; border: 0; padding: 6px 2px; font: inherit; color: var(--primary); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- paper panels ---------- */
+.paper { background: var(--paper); border-radius: var(--radius); padding: 18px; box-shadow: var(--lift); border: 1px solid var(--line); }
+html[data-look='shamiana'] .paper { border-width: 2px; }
+.promise { list-style: none; margin: 0; padding: 0; }
+.promise li { display: grid; grid-template-columns: 30px 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+.promise li:last-child { border-bottom: 0; }
+.promise .ico { color: var(--accent); width: 24px; height: 24px; margin-top: 2px; }
+html[data-look='shamiana'] .promise .ico { color: var(--primary); }
+.promise b { display: block; }
+.promise span { color: var(--soft); font-size: 15.5px; }
+
+.steps { list-style: none; counter-reset: s; margin: 0; padding: 0; }
+.steps li { counter-increment: s; position: relative; padding: 4px 0 14px 50px; }
+.steps li::before {
+  content: counter(s); position: absolute; left: 0; top: 0; width: 36px; height: 36px;
+  display: grid; place-items: center; font: var(--display-weight) 19px/1 var(--display);
+  color: var(--primary); border: 2px solid var(--primary); border-radius: 48% 52% 50% 50% / 52% 48% 52% 48%;
+  transform: rotate(-4deg); background: var(--paper);
+}
+.steps li:nth-child(even)::before { transform: rotate(3deg); }
+.steps b { display: block; }
+.steps span { color: var(--soft); font-size: 15.5px; }
+
+/* ---------- forms ---------- */
+form .field { margin-top: 18px; }
+form > .field:first-child { margin-top: 0; }
+label, legend { display: block; font-weight: 600; margin-bottom: 6px; padding: 0; }
+.hint { font-weight: 400; color: var(--soft); font-size: 14.5px; display: block; margin-top: 2px; }
+fieldset { border: 0; padding: 0; margin: 18px 0 0; min-width: 0; }
+input[type='text'], input[type='number'], input[type='date'], input[type='tel'], textarea {
+  width: 100%; font: inherit; color: var(--ink); background: var(--paper);
+  border: 1.5px solid var(--line); border-radius: var(--radius); padding: 12px 14px; min-height: 50px;
+}
+html[data-look='shamiana'] :is(input, textarea) { border-width: 2px; }
+textarea { min-height: 84px; resize: vertical; }
+input:focus, textarea:focus { outline: 3px solid var(--accent); outline-offset: 1px; }
+.choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.choices label { margin: 0; font-weight: 400; position: relative; }
+.choices input { position: absolute; opacity: 0; inset: 0; }
+.choices span { display: block; padding: 10px 16px; border: 1.5px solid var(--line); border-radius: 999px; background: var(--paper); cursor: pointer; }
+html[data-look='card'] .choices span, html[data-look='shamiana'] .choices span { border-radius: var(--radius); }
+html[data-look='shamiana'] .choices span { border-width: 2px; }
+.choices input:checked + span { background: var(--primary); border-color: var(--primary); color: var(--on-primary); font-weight: 600; }
+.choices input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: 2px; }
+.check { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start; font-weight: 400; margin-top: 20px; }
+.check input { width: 22px; height: 22px; margin: 2px 0 0; accent-color: var(--primary); }
+.photo-pick { display: flex; align-items: center; gap: 14px; }
+.photo-pick .thumb { width: 76px; height: 95px; flex: none; }
+.error { color: #a3261c; font-weight: 600; margin-top: 14px; }
+
+/* ---------- people, shown as photo-booth prints ---------- */
+.prints { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 14px; padding: 6px 2px 0; }
+.print {
+  display: block; width: 100%; text-align: left; font: inherit; color: var(--ink); cursor: pointer;
+  background: #fff; border: 1px solid rgb(0 0 0 / 0.08); border-radius: 3px; padding: 8px 8px 10px;
+  box-shadow: 0 10px 18px -12px rgb(40 20 10 / 0.55), 0 1px 2px rgb(40 20 10 / 0.15);
+  transform: rotate(-1.4deg); position: relative; -webkit-tap-highlight-color: transparent;
+  animation: drop-in 0.45s both cubic-bezier(0.2, 0.8, 0.3, 1.2);
+}
+.print:nth-child(2n) { transform: rotate(1.2deg); animation-delay: 0.06s; }
+.print:nth-child(3n) { transform: rotate(-0.4deg); animation-delay: 0.12s; }
+.print:nth-child(4n) { transform: rotate(1.9deg); }
+html[data-look='shamiana'] .print { border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); }
+.print:active { transform: scale(0.98); }
+.thumb { aspect-ratio: 4 / 5; width: 100%; background: var(--tint, var(--bride)); display: grid; place-items: center; overflow: hidden; position: relative; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb .initial { font: var(--display-weight) 64px/1 var(--display); color: rgb(0 0 0 / 0.42); }
+.thumb.s-bride { --tint: var(--bride); }
+.thumb.s-groom { --tint: var(--groom); }
+.thumb.s-both { --tint: var(--both); }
+.print .who { font: var(--display-weight) 18px/1.15 var(--display); margin-top: 9px; overflow-wrap: anywhere; }
+.print .who small { font: 400 15px/1 var(--body); color: var(--soft); }
+.print .wear { font-size: 14px; color: var(--soft); line-height: 1.3; margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tag { display: inline-block; font-size: 12.5px; font-weight: 600; padding: 2px 8px; border-radius: 3px; margin-top: 6px; background: var(--bride); color: #3a2a10; }
+.tag.s-groom { background: var(--groom); color: #1d3319; }
+.tag.s-both { background: var(--both); color: #4a1a25; }
+.print .liked { position: absolute; top: -9px; right: -7px; width: 34px; height: 34px; border-radius: 50%; background: var(--primary); color: #fff; display: grid; place-items: center; box-shadow: 0 2px 5px rgb(0 0 0 / 0.3); animation: pop 0.35s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.print .liked .ico { fill: currentColor; stroke: none; width: 18px; height: 18px; }
+.count { text-align: center; color: var(--soft); font-size: 15px; margin: 4px 0 14px; }
+.empty { text-align: center; padding: 26px 10px; }
+.empty svg { width: 150px; height: auto; }
+
+/* ---------- bottom tabs ---------- */
+.has-tabs { padding-bottom: 96px; }
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: flex; justify-content: center; gap: 6px; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); background: var(--paper); border-top: 1.5px solid var(--line); }
+html[data-look='shamiana'] .tabs { border-top: 2px solid var(--ink); }
+.tabs button { flex: 1; max-width: 150px; display: grid; justify-items: center; gap: 2px; padding: 6px 4px; font: 600 13.5px/1.2 var(--body); color: var(--soft); background: none; border: 0; border-radius: var(--radius); cursor: pointer; position: relative; -webkit-tap-highlight-color: transparent; }
+.tabs .ico { width: 24px; height: 24px; }
+.tabs button[aria-current='true'] { color: var(--primary); }
+.tabs button[aria-current='true'] .ico { fill: color-mix(in srgb, var(--primary) 18%, transparent); }
+.tabs .badge { position: absolute; top: 0; left: calc(50% + 8px); min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: var(--primary); color: #fff; font-size: 12.5px; display: grid; place-items: center; }
+
+/* ---------- sheets (dialogs) ---------- */
+dialog { border: 0; padding: 0; color: var(--ink); background: var(--paper); width: min(440px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); border-radius: calc(var(--radius) + 6px); box-shadow: 0 24px 60px -10px rgb(0 0 0 / 0.55); overflow: auto; }
+html[data-look='shamiana'] dialog { border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); }
+dialog::backdrop { background: rgb(40 14 20 / 0.6); }
+dialog[open] { animation: rise 0.28s cubic-bezier(0.2, 0.8, 0.3, 1.1); }
+.sheet { padding: 18px 18px 20px; }
+.sheet .thumb { border-radius: var(--radius); max-height: 46vh; }
+.sheet .thumb .initial { font-size: 110px; }
+.sheet h2 small { font: 400 18px/1 var(--body); color: var(--soft); }
+.sheet .about { margin-top: 10px; }
+.sheet .row { display: flex; gap: 10px; margin-top: 16px; }
+.sheet .row .btn.ghost { width: auto; flex: none; }
+.close-x { position: sticky; top: 8px; float: right; margin: 8px 8px -44px 0; z-index: 2; width: 38px; height: 38px; border-radius: 50%; border: 0; background: rgb(255 255 255 / 0.9); color: var(--ink); display: grid; place-items: center; cursor: pointer; box-shadow: 0 1px 4px rgb(0 0 0 / 0.25); }
+
+/* The match moment */
+.match { text-align: center; padding: 26px 20px 22px; position: relative; overflow: hidden; }
+.match h2 { font-size: 38px; color: var(--primary); }
+.match .pair { display: flex; justify-content: center; align-items: center; margin: 18px 0 8px; }
+.match .pair .thumb { width: 112px; border: 6px solid #fff; box-shadow: 0 8px 16px -8px rgb(0 0 0 / 0.5); border-radius: 3px; }
+.match .pair .thumb:first-child { transform: rotate(-6deg) translateX(10px); }
+.match .pair .thumb:last-child { transform: rotate(5deg) translateX(-10px); }
+.match .pair .thumb .initial { font-size: 54px; }
+.petal { position: absolute; top: -20px; width: 12px; height: 16px; border-radius: 80% 10% 80% 10%; background: #f39a1e; animation: fall 2.6s linear both; pointer-events: none; }
+.petal:nth-child(2n) { background: #f7c531; width: 10px; }
+.petal:nth-child(3n) { background: #e2572b; }
+.reach { margin-top: 16px; }
+.contact { font-weight: 600; font-size: 19px; overflow-wrap: anywhere; }
+
+/* Matches list */
+.match-row { display: grid; grid-template-columns: 76px 1fr; gap: 14px; align-items: center; }
+.match-row + .match-row { margin-top: 14px; }
+.match-row .thumb { border-radius: 3px; border: 4px solid #fff; box-shadow: 0 4px 10px -6px rgb(0 0 0 / 0.5); }
+.match-row .thumb .initial { font-size: 40px; }
+
+/* Host page */
+.qr { background: #fff; padding: 12px; border-radius: var(--radius); width: min(260px, 70vw); margin: 0 auto; border: 1px solid rgb(0 0 0 / 0.1); }
+.qr svg { display: block; width: 100%; height: auto; }
+.linkbox { display: flex; gap: 8px; align-items: stretch; margin-top: 12px; }
+.linkbox input { font-size: 15px; min-height: 44px; }
+.linkbox .btn { flex: none; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.stat { text-align: center; padding: 14px 8px; }
+.stat b { display: block; font: var(--display-weight) 40px/1 var(--display); color: var(--primary); font-variant-numeric: tabular-nums; }
+.guest { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 12px 0; border-bottom: 1px dashed var(--line); }
+.guest:last-child { border-bottom: 0; }
+.guest .flag { color: #a3261c; font-size: 14.5px; font-weight: 600; }
+.warn { border-left: 5px solid var(--accent); padding: 10px 14px; background: color-mix(in srgb, var(--accent) 14%, var(--paper)); border-radius: 0 var(--radius) var(--radius) 0; }
+
+#toast { position: fixed; left: 50%; bottom: 104px; transform: translate(-50%, 20px); background: var(--ink); color: #fff; padding: 11px 18px; border-radius: 999px; font-size: 15.5px; max-width: calc(100vw - 32px); opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; z-index: 50; text-align: center; }
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+footer.foot { text-align: center; color: var(--soft); font-size: 14.5px; padding: 26px 20px 34px; }
+
+@keyframes drop-in { from { opacity: 0; translate: 0 14px; } to { opacity: 1; translate: 0 0; } }
+@keyframes pop { from { scale: 0.2; } to { scale: 1; } }
+@keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes fall { from { transform: translateY(-10px) rotate(0); opacity: 1; } to { transform: translateY(560px) rotate(420deg); opacity: 0.2; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* The table card the couple prints and leaves at the venue */
+.table-card { display: none; }
+@media print {
+  body { background: #fff !important; }
+  body > *:not(.table-card) { display: none !important; }
+  .table-card { display: block; width: 105mm; margin: 8mm auto; padding: 9mm 8mm; text-align: center; border: 1.2mm double #8d1c31; color: #3d1220; }
+  .table-card h1 { font-size: 26pt; color: #8d1c31; }
+  .table-card .qr { width: 58mm; border: 0; padding: 0; margin: 6mm auto; }
+  .table-card p { font-size: 11.5pt; margin: 2mm 0; }
+  .table-card .tiny { font-size: 9pt; color: #555; }
+}

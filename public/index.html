@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en" data-look="card">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jodi: the singles' corner for your wedding</title>
+<meta name="description" content="A free, private corner where the single guests at one wedding can find each other. Scan a card at the venue. Contact is shared only when two people like each other.">
+<meta name="theme-color" content="#8d1c31">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<svg class="sprite" aria-hidden="true">
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-gift" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="1.5"/><path d="M3 7h18v3H3zM12 7v13M12 7c-1.5-3.5-6-3.500-5 0M12 7c1.500-3.500 6-3.500 5 0"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.500 12S6 5.500 12 5.500 21.500 12 21.500 12 18 18.500 12 18.500 2.500 12 2.500 12z"/><circle cx="12" cy="12" r="2.800"/></symbol>
+</svg>
+
+<div class="deco"></div>
+<main class="wrap wide stack">
+  <a class="brand" href="/">Jodi <small>the singles’ corner for your wedding</small></a>
+
+  <header class="stack">
+    <p class="kicker">Free for every wedding</p>
+    <h1>Five hundred guests. Somebody at this wedding is single too.</h1>
+    <p class="lede">You catch someone’s eye near the dance floor, twice, and then the night ends and you never learn their name. Jodi gives one wedding its own private corner where the single guests can find each other.</p>
+    <a class="btn" href="#create">Set it up for a wedding</a>
+  </header>
+
+  <hr class="rule">
+
+  <section class="stack" aria-labelledby="how">
+    <h2 id="how">How it works</h2>
+    <ol class="steps">
+      <li><b>The couple makes a room.</b><span>It takes a minute. You get a QR card to print and leave near the entrance or the food counters.</span></li>
+      <li><b>Single guests scan the card.</b><span>No app to install. They add a first name, what they are wearing today, and a photo if they like.</span></li>
+      <li><b>They see the other singles at the same wedding.</b><span>Only people who joined can look around. Aunties and uncles who did not join see nothing.</span></li>
+      <li><b>Two people like each other. That is a jodi.</b><span>Only then do they see each other’s Instagram or WhatsApp. A like that is not returned stays secret.</span></li>
+    </ol>
+  </section>
+
+  <section class="paper" aria-labelledby="promise">
+    <h2 id="promise">What we promise</h2>
+    <ul class="promise">
+      <li><svg class="ico"><use href="#i-gift"/></svg><div><b>Free, with no ads</b><span>For the couple and for every guest. The code is open for anyone to read, copy and run.</span></div></li>
+      <li><svg class="ico"><use href="#i-lock"/></svg><div><b>Contact stays hidden until it is mutual</b><span>Nobody can message you or find your number by joining.</span></div></li>
+      <li><svg class="ico"><use href="#i-eye"/></svg><div><b>Everyone here knows the couple</b><span>These are not strangers from the internet. They came through the bride, the groom or their families.</span></div></li>
+      <li><svg class="ico"><use href="#i-clock"/></svg><div><b>Deleted three days after the wedding</b><span>Profiles, photos and likes are all erased. You can also delete yours at any time.</span></div></li>
+    </ul>
+  </section>
+
+  <section id="create" class="stack" aria-labelledby="mk">
+    <h2 id="mk">Set it up for a wedding</h2>
+    <p class="muted">For the couple, a sibling or the planner. Guests do not need this page.</p>
+    <form id="createForm" class="paper" novalidate>
+      <div class="field">
+        <label for="title">Whose wedding is it?</label>
+        <input id="title" name="title" type="text" maxlength="60" placeholder="Asha &amp; Rahul" autocomplete="off" required>
+      </div>
+      <div class="field">
+        <label for="date">Wedding date <span class="hint">The room closes by itself three days later.</span></label>
+        <input id="date" name="date" type="date" required>
+      </div>
+      <p class="error" id="createError" hidden></p>
+      <div class="field"><button class="btn" type="submit">Make the room</button></div>
+    </form>
+    <div id="mine" class="paper" hidden>
+      <h3>Rooms you made on this phone</h3>
+      <div id="mineList"></div>
+    </div>
+  </section>
+</main>
+<footer class="foot">Jodi is free and open source. No ads, no tracking.</footer>
+<script type="module" src="/js/home.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "jodi",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  // The database is created for you on the first deploy. Tables are created on first use.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "jodi"
+    }
+  ],
+  // Once a day, delete weddings that closed.
+  "triggers": {
+    "crons": ["30 21 * * *"]
+  }
+}
