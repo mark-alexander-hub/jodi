@@ -1,5 +1,5 @@
 // The guest's side: join, look around, like, and see matches.
-import { $, el, icon, api, toast, sideLabel, store } from './common.js';
+import { $, el, icon, api, toast, sideLabel, store, coupleTitle } from './common.js';
 
 const code = (new URLSearchParams(location.search).get('w') || '').toUpperCase();
 const KEY = 'jodi:guest:' + code;
@@ -74,12 +74,25 @@ async function shrink(file) {
 }
 
 /* ---------- shared pieces ---------- */
+// A small drawing kept in the page as <symbol id="art-name">.
+function art(name) {
+  const NS = 'http://www.w3.org/2000/svg';
+  const s = document.createElementNS(NS, 'svg');
+  s.setAttribute('class', 'art');
+  s.setAttribute('viewBox', '0 0 160 112');
+  s.setAttribute('aria-hidden', 'true');
+  const u = document.createElementNS(NS, 'use');
+  u.setAttribute('href', '#art-' + name);
+  s.append(u);
+  return s;
+}
+
 const masthead = (sub) =>
   el(
     'header',
     { class: 'masthead' },
     el('p', { class: 'kicker', text: 'The singles’ corner at' }),
-    el('h1', null, el('span', { text: room.title })),
+    el('h1', null, coupleTitle(room.title)),
     sub && el('p', { class: 'muted', text: sub }),
   );
 
@@ -138,7 +151,7 @@ function showWelcome() {
       }),
       room.joined >= 3 && el('p', { class: 'count', text: `${room.joined} single guests have joined so far.` }),
       el('button', { class: 'btn', type: 'button', onclick: () => showForm(null) }, 'I’m single. Count me in'),
-      el('div', { class: 'paper' }, promises()),
+      el('div', { class: 'paper henna' }, promises()),
       el('p', { class: 'muted center', text: 'Not single? Just close this page. Nothing was saved.' }),
     ),
   );
@@ -348,6 +361,7 @@ function drawPeople() {
       : el(
           'div',
           { class: 'paper empty stack' },
+          art('chai'),
           el('h2', { text: 'You are early' }),
           el('p', { class: 'muted', text: 'Nobody you asked to meet has joined yet. More people scan the card as the evening goes on, so look again after the starters.' }),
           el('button', { class: 'btn ghost', type: 'button', onclick: () => refresh().then(draw).catch((e) => toast(e.message)) }, 'Look again'),
@@ -390,6 +404,7 @@ function drawMatches() {
       : el(
           'div',
           { class: 'paper empty stack' },
+          art('chai'),
           el('h2', { text: 'No jodi yet' }),
           el('p', { class: 'muted', text: 'When someone you liked likes you back, they appear here with their contact. Nobody is told about a like that is not returned.' }),
           el('button', { class: 'btn ghost', type: 'button', onclick: () => setTab('people') }, 'See who’s here'),

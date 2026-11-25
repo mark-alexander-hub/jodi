@@ -1,6 +1,6 @@
 // The couple's side: the QR card, a headcount, and a way to remove people.
 /* global qrcode */
-import { $, el, api, toast, sideLabel, store, niceDate } from './common.js';
+import { $, el, api, toast, sideLabel, store, niceDate, coupleTitle } from './common.js';
 
 const code = (new URLSearchParams(location.search).get('w') || '').toUpperCase();
 const KEY = 'jodi:host:' + code;
@@ -54,7 +54,7 @@ function draw(data) {
   );
 
   view.replaceChildren(
-    el('header', { class: 'masthead' }, el('p', { class: 'kicker', text: 'Your room for' }), el('h1', null, el('span', { text: data.title })), el('p', { class: 'muted', text: niceDate(data.date) })),
+    el('header', { class: 'masthead' }, el('p', { class: 'kicker', text: 'Your room for' }), el('h1', null, coupleTitle(data.title)), el('p', { class: 'muted', text: niceDate(data.date) })),
 
     el(
       'div',

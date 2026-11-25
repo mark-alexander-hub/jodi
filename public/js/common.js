@@ -100,6 +100,8 @@ export const store = {
   },
 };
 
-// Lets a look be previewed with ?look=card|mehendi|shamiana. The default is set on <html>.
-const look = new URLSearchParams(location.search).get('look');
-if (look && /^[a-z]+$/.test(look)) document.documentElement.dataset.look = look;
+// "Asha & Rahul" with the joining word picked out in marigold.
+export function coupleTitle(title) {
+  const parts = String(title).split(/\s+(&|\+|and|weds)\s+/i);
+  return el('span', null, parts.map((p, i) => (i % 2 ? [' ', el('i', { class: 'amp', text: p }), ' '] : p)));
+}

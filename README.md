@@ -70,12 +70,10 @@ test/selftest.mjs  end-to-end checks of the API
 
 There is no framework and no build step. There are no accounts: a guest's phone keeps a random key for that one wedding, and the server stores only its hash.
 
-The three looks (`card`, `mehendi`, `shamiana`) live in `public/app.css` and are picked with `data-look` on the `<html>` tag. Add `?look=mehendi` to any page to preview one.
-
 ## Credits
 
 - QR codes: [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) by Kazuhiko Arase, MIT.
-- Typefaces: Hind, Baloo 2 and Rozha One by Indian Type Foundry and Ek Type, and Yeseva One by Jovanny Lemonad, all under the SIL Open Font License. Licence texts are in `licenses/`.
+- Typefaces: Hind by Indian Type Foundry and Baloo 2 by Ek Type, both under the SIL Open Font License. Licence texts are in `licenses/`.
 
 ## Licence
 
