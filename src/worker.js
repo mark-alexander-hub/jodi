@@ -6,6 +6,7 @@ const DAY = 86_400_000;
 const KEEP_DAYS = 3; // everything is deleted this many days after the wedding
 const LIKE_LIMIT = 10;
 const ROOM_GUEST_LIMIT = 500;
+const ROOMS_PER_HOUR = 40; // a simple brake so nobody can flood the site with rooms
 const MAX_BODY = 300_000;
 const MAX_PHOTO = 200_000; // base64 characters, about 150 KB
 
@@ -208,6 +209,8 @@ async function createRoom(req, db) {
   if (when > now + 400 * DAY) fail('Please pick a date within the next year.');
 
   await purgeExpired(db);
+  const recent = await db.prepare('SELECT COUNT(*) AS n FROM rooms WHERE created_at > ?').bind(now - 3_600_000).first();
+  if (recent.n >= ROOMS_PER_HOUR) fail('A lot of rooms are being made right now. Please try again in a little while.', 429);
   const hostKey = randomToken();
   const hostHash = await sha256(hostKey);
   for (let attempt = 0; attempt < 5; attempt++) {

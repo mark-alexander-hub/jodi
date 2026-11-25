@@ -1,0 +1,19 @@
+{
+  // The daily clean-up for the hosted copy. It has no web address of its own.
+  "name": "jodi-sweeper",
+  "main": "../../src/sweeper.js",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": false,
+  "preview_urls": false,
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "jodi",
+      "database_id": "39642584-68c2-4ada-83aa-1fb879fd2b71"
+    }
+  ],
+  // 21:30 UTC is 3 in the morning in India.
+  "triggers": {
+    "crons": ["30 21 * * *"]
+  }
+}

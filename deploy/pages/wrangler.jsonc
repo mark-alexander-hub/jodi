@@ -1,0 +1,15 @@
+{
+  // The hosted copy at https://weddingjodi.pages.dev
+  // Build with `npm run build:pages`, then deploy from this folder (see README).
+  // If you host your own copy, change the name and use your own database id.
+  "name": "weddingjodi",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2026-10-01",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "jodi",
+      "database_id": "39642584-68c2-4ada-83aa-1fb879fd2b71"
+    }
+  ]
+}

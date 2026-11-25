@@ -4,6 +4,8 @@
 
 Free. No ads. No app to install. Everything is deleted three days after the wedding.
 
+**Use it now: https://weddingjodi.pages.dev**
+
 ## How to use it
 
 ### If it is your wedding (or you are helping the couple)
@@ -58,12 +60,25 @@ npx wrangler deploy
 
 Wrangler creates the database on the first deploy, and the app creates its tables on first use. If your version of wrangler asks for a database id instead, run `npx wrangler d1 create jodi` and paste the id it prints into `wrangler.jsonc` as `"database_id"`.
 
-Good to do after deploying: add a Cloudflare rate-limiting rule on `/api/*` so nobody can flood the room-creation endpoint.
+That gives you an address like `jodi.your-account.workers.dev`.
+
+### A shorter address with Cloudflare Pages
+
+The hosted copy runs on Cloudflare Pages so that its address is just `weddingjodi.pages.dev`. To do the same with your own name:
+
+1. `npx wrangler d1 create jodi` and put the id it prints into both files under `deploy/`.
+2. Change `"name"` in `deploy/pages/wrangler.jsonc` to the address you want.
+3. `npm run build:pages`, then from `deploy/pages` run `npx wrangler pages project create YOUR-NAME --production-branch main` and `npx wrangler pages deploy --branch main`.
+4. Pages cannot run timed jobs, so deploy the small clean-up worker too: `npx wrangler deploy -c deploy/sweeper/wrangler.jsonc`.
+
+The app allows at most 40 new rooms an hour across the whole site, as a simple brake against flooding. Change `ROOMS_PER_HOUR` in `src/worker.js` if you need more.
 
 ## How it is built
 
 ```
 src/worker.js      the API and the daily clean-up
+src/sweeper.js     the clean-up on its own, for the Cloudflare Pages setup
+deploy/            settings for the hosted copy at weddingjodi.pages.dev
 public/            the three pages (start, guest room, host), plain HTML, CSS and JavaScript
 test/selftest.mjs  end-to-end checks of the API
 ```
