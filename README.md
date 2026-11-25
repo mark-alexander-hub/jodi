@@ -6,6 +6,17 @@ Free. No ads. No app to install. Everything is deleted three days after the wedd
 
 **Use it now: https://weddingjodi.pages.dev**
 
+![Four phone screens: the welcome page after scanning the card, the list of single guests, one person's card, and the "It's a jodi!" match screen](docs/screens.png)
+
+*The names and portraits above are made-up demo guests.*
+
+<details>
+<summary>See it in हिन्दी, ಕನ್ನಡ and தமிழ்</summary>
+
+![The same four screens in Hindi, Kannada and Tamil](docs/languages.png)
+
+</details>
+
 ## How to use it
 
 ### If it is your wedding (or you are helping the couple)
